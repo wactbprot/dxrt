@@ -9,7 +9,8 @@
 
 (defn  config [id]
   {:mpd/doc {:id id
-             :db "vl_db"}})
+             :db "vl_db"}
+   :image/state {:doc (ig/ref :mpd/doc)}})
 
 ;; ________________________________________________________________________
 ;; init key
