@@ -1,5 +1,5 @@
-mem מם
--------
+dxrt
+----
 
 # design ideas
 
@@ -22,7 +22,7 @@ the `map->key`, `key->map` time loss.
 * `(build image)` 
 * `(up image)` starts a loop recur over the state agents in a future, returns the future -> integrant
 
-## loc param (location map
+## loc param (location map)
 
 * `loc` is a map of the location (or position) of a piece of informaion in the image
 * keys as in previous systems:
