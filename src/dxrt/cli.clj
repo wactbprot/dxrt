@@ -7,10 +7,13 @@
 
 (def system (atom {}))
 
-(defn  config [id]
+(defn  config [id image]
   {:mpd/doc {:id id
              :db "vl_db"}
-   :image/state {:doc (ig/ref :mpd/doc)}})
+   :image/container {:doc (ig/ref :mpd/doc) :image image}
+   :image/definition {:doc (ig/ref :mpd/doc) :image image}
+   :image/state {:doc (ig/ref :mpd/doc) :image image}
+   :image/sheduler {:image (ig/ref :image/state)}})
 
 ;; ________________________________________________________________________
 ;; init key
@@ -18,16 +21,42 @@
 (defmethod ig/init-key :mpd/doc [_ {:keys [id db] :as opts}]
   {:mpd id :db db})
 
+(defmethod ig/init-key :image/definition [_ {:keys [doc image] :as opts}]
+  {:mpd id :db db})
+
+(defmethod ig/init-key :image/container [_ {:keys [doc image] :as opts}]
+  {:mpd id :db db})
+
+(defmethod ig/init-key :image/state [_ {:keys [doc image] :as opts}]
+  {:mpd id :db db})
+
+(defmethod ig/init-key :image/sheduler [_ {:keys [doc image] :as opts}]
+  {:mpd id :db db})
 
 
 ;; ________________________________________________________________________
 ;; halt key
 ;; ________________________________________________________________________
-
 (defmethod ig/halt-key! :mpd/doc [_ image]
   ;; stop agents
   (prn image))
 
+(defmethod ig/halt-key! :image/definition [_ {:keys [doc image] :as opts}]
+  (prn image))
+
+(defmethod ig/halt-key! :image/container [_ {:keys [doc image] :as opts}]
+  (prn image))
+
+(defmethod ig/halt-key! :image/state [_ {:keys [doc image] :as opts}]
+  (prn image))
+
+(defmethod ig/halt-key! :image/sheduler [_ {:keys [doc image] :as opts}]
+  (prn image))
+
+
+;; ________________________________________________________________________
+;; id up/down
+;; ________________________________________________________________________
 (defn up [id]
   (swap! system assoc id (ig/init (config id) [:mpd/doc])))
 
