@@ -1,15 +1,27 @@
 (ns dxrt.cli
   ^{:author "Thomas Bock <thomas.bock@ptb.de>"
     :doc "The dxrt cli."}
-  (:require [libcdb.configure :as db]
+  (:require [libcdb.core :as db]
             [integrant.core :as ig]))
 
 
 (def system (atom {}))
 
 (defn  config [id image]
-  {:mpd/doc {:id id
-             :db "vl_db"}
+
+  {:db/conn {:prot "http"
+             :host "localhost"
+             :port 5984
+             :name "vl_db"}
+
+   :db/mpd {:conn (ig/ref :db/conn)
+            :design "dbmp"
+            :view "mpdocs"}
+
+   :db/tasks {:conn (ig/ref :db/conn)
+              :design "dbmp"
+              :view "tasks"}
+
    :image/container {:doc (ig/ref :mpd/doc) :image image}
    :image/definition {:doc (ig/ref :mpd/doc) :image image}
    :image/state {:doc (ig/ref :mpd/doc) :image image}
