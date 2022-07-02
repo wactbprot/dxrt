@@ -3,6 +3,7 @@ dxrt
 
 # design ideas
 
+## metis lessons learnd
 [metis](https://gitlab1.ptb.de/vaclab/metis) uses redis as the state
 image. An unpleasant side effect is the need of a constant `loc` (map)- `key`
 transformation (`map->key`, `key->map`).
@@ -12,8 +13,15 @@ as a platform for docking further programs (GUI, Metic, evaluation,
 data mining, alarm system, bots, ki) is wishful thinking. so why all
 the `map->key`, `key->map` time loss.
 
-* state, exchange, model ... can be pulled into an inmutable (clock ordered) database
-* a loop recur makes the progress
+Part of metis debuging was related to a redis gui with all it pros and
+cons. The _dxrt_ system should be inspectable in total with the clojure REPL.
+
+Furthermore, [portal](https://github.com/djblue/portal) is a realy
+nice option to understand the system during runtime.
+
+* no use of an (in-mem)-database at the first place
+* state, exchange, model **can be pulled into an inmutable (clock ordered) database system snapshots
+* a loop recur makes the progress (turn based) which simplifies a lot
 
 ## image
 

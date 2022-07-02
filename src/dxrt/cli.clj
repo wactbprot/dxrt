@@ -2,10 +2,11 @@
   ^{:author "Thomas Bock <thomas.bock@ptb.de>"
     :doc "The dxrt cli."}
   (:require [dxrt.db :as db]
+            [dxrt.model :as model]
             [integrant.core :as ig]))
 
 
-(def image (atom {}))
+(def images (atom {}))
 
 
 (defn config [id]
@@ -16,8 +17,9 @@
               :pwd (System/getenv "CAL_PWD")
               :id id
               :name "vl_db_work"}
-   :doc/mpd {:id id :db (ig/ref :db/couch)}
-   :image/container {:doc (ig/ref :doc/mpd)}})
+   :doc/mpd {:id id
+             :db (ig/ref :db/couch)}
+   :image/model {:doc (ig/ref :doc/mpd)}})
 
 ;; ________________________________________________________________________
 ;; init key
@@ -28,8 +30,8 @@
 (defmethod ig/init-key :doc/mpd [_ {:keys [id] :as opts}]
   (db/get-mpd opts))
 
-(defmethod ig/init-key :image/container [_ {:keys [doc] :as opts}]
-  (prn doc))
+(defmethod ig/init-key :image/model [_ {:keys [doc] :as opts}]
+  (model/up images doc opts))
 
 
 
