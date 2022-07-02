@@ -43,4 +43,10 @@
   (prn image))
 
 
-(def system (ig/init (config "mpd-se3-calib"))) 
+(defn up [id]
+  (swap! system assoc id (ig/init (config id))))
+
+
+(defn down [id]
+  (ig/halt! (get @system id))
+  (swap! dissoc system id))
