@@ -8,22 +8,24 @@
 (def image (atom {}))
 
 
-(defn config [image id]
-  {:mpd/db {:prot "http",
-            :host "localhost",
-            :port 5984,
-            :usr (System/getenv "CAL_USR")
-            :pwd (System/getenv "CAL_PWD")
-            :opt {:query-params {},
-                  :pool {:threads 1, :default-per-route 1}}
-            :id id
-            :name "vl_db"}
-   :image/container {:doc (ig/ref :mpd/db) :image image}})
+(defn config [id]
+  {:db/couch {:prot "http",
+              :host "localhost",
+              :port 5984,
+              :usr (System/getenv "CAL_USR")
+              :pwd (System/getenv "CAL_PWD")
+              :id id
+              :name "vl_db_work"}
+   :doc/mpd {:id id :db (ig/ref :db/couch)}
+   :image/container {:doc (ig/ref :doc/mpd)}})
 
 ;; ________________________________________________________________________
 ;; init key
 ;; ________________________________________________________________________
-(defmethod ig/init-key :mpd/db [_ opts]
+(defmethod ig/init-key :db/couch [_ opts]
+  (db/config opts))
+
+(defmethod ig/init-key :doc/mpd [_ {:keys [id] :as opts}]
   (db/get-mpd opts))
 
 (defmethod ig/init-key :image/container [_ {:keys [doc] :as opts}]
@@ -34,9 +36,9 @@
 ;; ________________________________________________________________________
 ;; halt key
 ;; ________________________________________________________________________
-(defmethod ig/halt-key! :mpd/doc [_ image]
+(defmethod ig/halt-key! :doc/mpd [_ opts]
   ;; stop agents
   (prn image))
 
 
-(def system (ig/init (config image "mpd-se3-calib"))) 
+(def system (ig/init (config "mpd-se3-calib"))) 

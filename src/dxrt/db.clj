@@ -1,7 +1,10 @@
 (ns dxrt.db
-  (:require [libcdb.core :as db]))
+  (:require [libcdb.core :as db]
+            [libcdb.configure :as cf]))
 
-(defn get-mpd [{:keys [id] :as opts}]
-  (prn id)
-  (prn opts)
-  (db/get-doc id opts))
+
+(defn config [opts]
+  (cf/config opts))
+
+(defn get-mpd [{:keys [id db]}]
+  (db/get-doc id db))
