@@ -7,7 +7,7 @@
 
 (def system (atom {}))
 
-(defn  config [id]
+(defn config [system id]
   {:mpd/doc {:id id
              :db "vl_db"}})
 
