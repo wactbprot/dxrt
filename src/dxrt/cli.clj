@@ -20,7 +20,8 @@
               :name "vl_db_work"}
    :doc/mpd {:id id
              :db (ig/ref :db/couch)}
-   :image/model {:doc (ig/ref :doc/mpd)}})
+   :mpd/model {:doc (ig/ref :doc/mpd)}
+   :image/scheduler {:id id :model (ig/ref :mpd/model)}})
 
 ;; ________________________________________________________________________
 ;; init key
@@ -31,8 +32,11 @@
 (defmethod ig/init-key :doc/mpd [_ {:keys [id] :as opts}]
   (db/get-mpd opts))
 
-(defmethod ig/init-key :image/model [_ {:keys [doc] :as opts}]
+(defmethod ig/init-key :mpd/model [_ {:keys [doc] :as opts}]
   (model/up doc))
+
+(defmethod ig/init-key :image/scheduler [_ {:keys [id model] :as opts}]
+  (swap! images assoc id (scd/up model)))
 
 
 
@@ -40,7 +44,6 @@
 ;; halt key
 ;; ________________________________________________________________________
 (defmethod ig/halt-key! :doc/mpd [_ opts]
-  ;; stop agents
   (prn images))
 
 

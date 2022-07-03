@@ -2,7 +2,8 @@
 
 (defn struct-def->state-ctrl [v]
   (mapv (fn [{c :Ctrl d :Definition} i]
-          {:ctrl (or c :ready)
+          {:all-exec-hooks []
+           :ctrl (or (keyword c) :ready)
            :state (into [] (flatten
                             (mapv (fn [s j] 
                                     (mapv (fn [p k] 
@@ -23,7 +24,7 @@
 
       (assoc :Definitions (mapv
                            (fn [d s]
-                             (merge c {:agent (agent s)}))
+                             (merge d {:agent (agent s)}))
                            defis (struct-def->state-ctrl defis)))
       
       (assoc :Documents (agent []))
