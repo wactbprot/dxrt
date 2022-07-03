@@ -3,12 +3,12 @@
     :doc "The dxrt cli."}
   (:require [dxrt.db :as db]
             [dxrt.model :as model]
+            [dxrt.scheduler :as scd]
             [integrant.core :as ig]))
 
 
 (def images (atom {}))
 (def system (atom {}))
-
 
 (defn config [id]
   {:db/couch {:prot "http",
@@ -21,7 +21,9 @@
    :doc/mpd {:id id
              :db (ig/ref :db/couch)}
    :mpd/model {:doc (ig/ref :doc/mpd)}
-   :image/scheduler {:id id :model (ig/ref :mpd/model)}})
+   :image/scheduler {:id id
+                     :heartbeat 1000 ; ms
+                     :model (ig/ref :mpd/model)}})
 
 ;; ________________________________________________________________________
 ;; init key

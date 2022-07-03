@@ -1,32 +1,30 @@
 (ns dxrt.model)
 
-(defn struct-def->state-ctrl [v]
-  (mapv (fn [{c :Ctrl d :Definition} i]
-          {:all-exec-hooks []
-           :ctrl (or (keyword c) :ready)
-           :state (into [] (flatten
-                            (mapv (fn [s j] 
-                                    (mapv (fn [p k] 
-                                            {:ndx i :sdx j :pdx k :is :ready})
-                                          s (range)))
-                                  d (range))))})
-        v (range)))
+(defn flattenv [v] (into [] (flatten v)))
 
+(defn struct->struct-model [v]
+  (mapv (fn [{:keys [Ctrl Definition Title Description Element]} i]
+          {:title Title
+           :elem Element
+           :descr Description
+           :agent (agent {:all-exec-hooks []
+                          :ctrl (or (keyword Ctrl) :ready)
+                          :state (flattenv
+                                  (mapv (fn [s j] 
+                                          (mapv (fn [t k] 
+                                                  {:ndx i :sdx j :pdx k
+                                                   :is :ready
+                                                   :task t})
+                                                s (range)))
+                                        Definition (range)))})})
+        v (range)))
 
 (defn up
   [{id :_id  {exch :Exchange cont :Container defis :Definitions :as mp} :Mp}]
   (-> mp
       (dissoc :Task)
-      (assoc :Container (mapv
-                         (fn [c s]
-                           (merge c {:agent (agent s)}))
-                         cont (struct-def->state-ctrl cont)))
-
-      (assoc :Definitions (mapv
-                           (fn [d s]
-                             (merge d {:agent (agent s)}))
-                           defis (struct-def->state-ctrl defis)))
-      
+      (assoc :Container (struct->struct-model cont))
+      (assoc :Definitions (struct->struct-model defis))
       (assoc :Documents (agent []))
       (assoc :Exchange (agent exch))))
 
