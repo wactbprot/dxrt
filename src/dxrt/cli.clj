@@ -7,6 +7,7 @@
 
 
 (def images (atom {}))
+(def system (atom {}))
 
 
 (defn config [id]
@@ -31,7 +32,7 @@
   (db/get-mpd opts))
 
 (defmethod ig/init-key :image/model [_ {:keys [doc] :as opts}]
-  (model/up images doc opts))
+  (model/up doc))
 
 
 
@@ -40,7 +41,7 @@
 ;; ________________________________________________________________________
 (defmethod ig/halt-key! :doc/mpd [_ opts]
   ;; stop agents
-  (prn image))
+  (prn images))
 
 
 (defn up [id]

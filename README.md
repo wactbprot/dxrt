@@ -37,7 +37,7 @@ nice option to understand the system during runtime.
   * `mp-id`
   * `struct`
   * `no-idx` here (cooler) `ndx`
-  * `seq-idx`, ...  here  `idx` `jdx` 
+  * `seq-idx`, ...  here  `sdx` `pdx` 
 
 
 ## task ns
@@ -62,7 +62,9 @@ nice option to understand the system during runtime.
 ## document ns
 
 * for every document an agent `(assoc-in @image [:mpd-ref :ids :cal-foo] (agent {rev-1-bar})`
-* worker got data to write to document: `(document/to data loc config)` which schould be `(send (image/document loc) data)` location contains `:id :cal-foo`
+* https://www.thattommyhall.com/2014/02/24/concurrency-and-parallelism-in-clojure/
+* https://stackoverflow.com/questions/4768592/use-of-agents-to-complete-side-effects-in-stm-transactions
+* worker got data to write to document: `(document/to data loc)` which schould be `(send (image/document loc) data)` location contains `:id :cal-foo`
 
 
 ## worker ns
