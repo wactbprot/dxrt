@@ -25,6 +25,8 @@
                      :heartbeat 1000 ; ms
                      :model (ig/ref :mpd/model)}})
 
+
+
 ;; ________________________________________________________________________
 ;; init key
 ;; ________________________________________________________________________
@@ -35,24 +37,18 @@
   (db/get-mpd opts))
 
 (defmethod ig/init-key :mpd/model [_ {:keys [doc] :as opts}]
-  (model/up doc))
+  (model/build doc))
 
 (defmethod ig/init-key :image/scheduler [_ {:keys [id model] :as opts}]
   (scd/up model opts))
 
 
-
 ;; ________________________________________________________________________
 ;; halt key
 ;; ________________________________________________________________________
-(defmethod ig/halt-key! :mpd/model [_ impl]
-  (prn "model halt")
-  (prn (class impl)))
-
 (defmethod ig/halt-key! :image/scheduler [_ impl]
   (prn "shed halt")
     (prn (class impl)))
-
 
 (defn up [id]
   (swap! system assoc id (ig/init (config id)))
@@ -64,12 +60,20 @@
   (swap! system dissoc  id)
   (prn (keys @system)))
 
+
+;; ________________________________________________________________________
+;; playground
+;; ________________________________________________________________________
 (comment
-  (up "mpd-se3-calib")
-  (up "mpd-ppc-gas_dosing"))
+  (up "mpd-ppc-gas_dosing")
+  (up "mpd-se3-calib"))
 
 (comment
   (require '[portal.api :as p])
   (def p (p/open))
   (add-tap #'p/submit)
   (tap> system))
+
+(comment
+  (down "mpd-ppc-gas_dosing")
+  (down "mpd-se3-calib"))
