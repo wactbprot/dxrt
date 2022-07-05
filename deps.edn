@@ -13,6 +13,7 @@
             :dev {:extra-paths ["resources" "src"]
                   
                   :extra-deps {de.ptb.gitlab1/libcdb {:local/root "../libcdb"}
+                               djblue/portal {:mvn/version "0.28.0"}
                                cheshire/cheshire {:mvn/version "5.10.0"}
                                org.clojure/test.check {:mvn/version "1.1.1"}
                                integrant/integrant {:mvn/version "0.8.0"}

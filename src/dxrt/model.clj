@@ -22,6 +22,7 @@
 (defn up
   [{id :_id  {exch :Exchange cont :Container defis :Definitions :as mp} :Mp}]
   (-> mp
+      (assoc :id (keyword id))
       (dissoc :Task)
       (assoc :Container (struct->struct-model cont))
       (assoc :Definitions (struct->struct-model defis))

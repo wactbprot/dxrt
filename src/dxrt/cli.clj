@@ -7,7 +7,7 @@
             [integrant.core :as ig]))
 
 
-(def images (atom {}))
+
 (def system (atom {}))
 
 (defn config [id]
@@ -38,21 +38,38 @@
   (model/up doc))
 
 (defmethod ig/init-key :image/scheduler [_ {:keys [id model] :as opts}]
-  (swap! images assoc id (scd/up model)))
+  (scd/up model opts))
 
 
 
 ;; ________________________________________________________________________
 ;; halt key
 ;; ________________________________________________________________________
-(defmethod ig/halt-key! :doc/mpd [_ opts]
-  (prn images))
+(defmethod ig/halt-key! :mpd/model [_ impl]
+  (prn "model halt")
+  (prn (class impl)))
+
+(defmethod ig/halt-key! :image/scheduler [_ impl]
+  (prn "shed halt")
+    (prn (class impl)))
 
 
 (defn up [id]
-  (swap! system assoc id (ig/init (config id))))
+  (swap! system assoc id (ig/init (config id)))
+  (prn (keys @system)))
 
 
 (defn down [id]
   (ig/halt! (get @system id))
-  (swap! dissoc system id))
+  (swap! system dissoc  id)
+  (prn (keys @system)))
+
+(comment
+  (up "mpd-se3-calib")
+  (up "mpd-ppc-gas_dosing"))
+
+(comment
+  (require '[portal.api :as p])
+  (def p (p/open))
+  (add-tap #'p/submit)
+  (tap> system))
