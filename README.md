@@ -32,22 +32,20 @@ nice option to understand the system during runtime.
 * state, exchange, model **can be pulled into an inmutable (clock ordered) database system snapshots
 * a loop recur makes the progress (turn based) which simplifies a lot
 
-## image
+## system
 
-* The image is a collection of `mpd`s running at `localhost`
-* image is a atom
-* `(build image)` 
-* `(up image)` starts a loop recur over the state agents in a future, returns the future -> integrant
+* the system is a collection of `mpd`s modeled as an image in a certain way
+* the system maintained  by [integrant](https://github.com/weavejester/integrant)
 
 ## loc param (location map)
 
-* `loc` is a map of the location (or position) of a piece of informaion in the image
-* keys as in previous systems:
-  * `mp-id`
+* `loc` is a map describing the location of a mutable piece of information in the system
+* keys of this map are at least:
+  * `id`
   * `struct`
-  * `no-idx` here (cooler) `ndx`
-  * `seq-idx`, ...  here  `sdx` `pdx` 
+  *  `ndx` `sdx` `pdx` 
 
+## ----||
 
 ## task ns
 
