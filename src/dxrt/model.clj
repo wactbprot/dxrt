@@ -25,21 +25,18 @@
                                        Definition (range)))})})
         v (range)))
 
-(defn build
-  "Note:
-
-  since this `build` model-fn simply returns a `map` it has no
-  meaningful takedown function.  Why is this stated:
-  * the takedown fn is **not** `(shutdown-agents)`
-  * renamed from `up` to `build` because there is no `down`
-  "
+(defn image
+  "Note: The takedown fn is **not** `(shutdown-agents)`:
+    `(shutdown-agents)` closes ''two global
+  executors and CIDER uses those global threadpools''"
   [{id :_id  {:keys [Exchange Container Definitions] :as mp} :Mp}]
-  (-> mp
-      (assoc :id (keyword id))
-      (assoc :Container (struct->struct-model Container))
-      (assoc :Definitions (struct->struct-model Definitions))
-      (assoc :Documents (agent []))
-      (assoc :Exchange (agent Exchange))
-      (dissoc :Task)))
+  {(keyword id) (-> mp
+                    (assoc :Container (struct->struct-model Container))
+                    (assoc :Definitions (struct->struct-model Definitions))
+                    (assoc :Documents (agent []))
+                    (assoc :Exchange (agent Exchange))
+                    (dissoc :Task))})
 
+(defn merge-image [res doc] (merge res (image doc)))
 
+(defn build [docs] (reduce merge-image {} docs))
