@@ -21,9 +21,8 @@
    :doc/mpds {:ids ids
               :db (ig/ref :db/couch)}
    :mpd/model {:docs (ig/ref :doc/mpds)}
-   :image/scheduler {:heartbeat 100 ; ms
-                     :model (ig/ref :mpd/model)}
-  })
+   :image/scheduler {:heartbeat 1000 ; ms
+                     :model (ig/ref :mpd/model)}})
 
 
 

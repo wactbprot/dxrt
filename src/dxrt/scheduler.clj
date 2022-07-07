@@ -6,7 +6,8 @@
                                   (Thread/sleep heartbeat)
                                   (recur)))))
 
-(defn stop-loop-future [a] (future-cancel (-> a :loop-future)))
+(defn stop-loop-future [a]
+  (assoc a :loop-future (future-cancel (-> a :loop-future))))
 
 
 (defn apply-struct-proc [model f]
