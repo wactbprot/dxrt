@@ -1,12 +1,20 @@
 (ns dxrt.scheduler)
 
-(defonce continue  (atom {}))
+(defn start-loop-future [a proc-fn! {:keys [heartbeat]}]
+  (assoc a :loop-future (future (loop []
+                                  (proc-fn!)
+                                  (Thread/sleep heartbeat)
+                                  (recur)))))
 
-(defn state-loop [{:keys [id struct ndx]} proc-fn! {:keys [heartbeat]}]
-  (loop []
-    (proc-fn!)
-    (Thread/sleep heartbeat)
-    (when (get-in @continue [id struct ndx]) (recur))))
+(defn stop-loop-future [a] (future-cancel (-> a :loop-future)))
+
+
+(defn apply-struct-proc [model f]
+  (mapv (fn [[id {:keys [Container Definitions] :as mp}]]
+          (mapv (fn [{a :proc}]
+                  (f a))
+                Container))
+        model))
 
 (defn up
   "Every `:Container`/`:Definitions` element got his own `loop-recur`
@@ -15,8 +23,13 @@
   e.g. in order to realize the `ctrl_mp` and `select_definition`
   actions.
   "
-  [{:keys [id Container Definitions] :as model} opts]
-
-  (state-loop {:id id :struct :Container :ndx 0} (fn [] (prn "check state")) opts)
+  [model opts]
+  (apply-struct-proc model
+                     (fn [a] (send a start-loop-future
+                                  (fn [] (prn "."))  opts)))
 
   model)
+  
+(defn down [model]
+  (apply-struct-proc model (fn [a] (send a stop-loop-future))))
+      

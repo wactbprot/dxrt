@@ -4,7 +4,8 @@
   (:require [dxrt.db :as db]
             [dxrt.model :as model]
             [dxrt.scheduler :as scd]
-            [integrant.core :as ig]))
+            [integrant.core :as ig]
+            [portal.api :as p]))
 
 
 
@@ -20,8 +21,8 @@
    :doc/mpds {:ids ids
               :db (ig/ref :db/couch)}
    :mpd/model {:docs (ig/ref :doc/mpds)}
-   ;;:image/scheduler {:heartbeat 1000 ; ms
-   ;;:model (ig/ref :mpd/model)}
+   :image/scheduler {:heartbeat 100 ; ms
+                     :model (ig/ref :mpd/model)}
   })
 
 
@@ -38,15 +39,15 @@
 (defmethod ig/init-key :mpd/model [_ {:keys [docs] :as opts}]
   (model/build docs))
 
-#_(defmethod ig/init-key :image/scheduler [_ {:keys [id model] :as opts}]
+(defmethod ig/init-key :image/scheduler [_ {:keys [id model] :as opts}]
   (scd/up model opts))
 
 
 ;; ________________________________________________________________________
 ;; halt key
 ;; ________________________________________________________________________
-(defmethod ig/halt-key! :doc/mpds [_ docs]
-  (prn "shed halt"))
+(defmethod ig/halt-key! :image/scheduler [_ model]
+  (scd/down model))
 
 ;; ________________________________________________________________________
 ;; playground
@@ -58,7 +59,7 @@
   (ig/halt! system))
 
 (comment
-  (require '[portal.api :as p])
+  
   (def p (p/open))
   (add-tap #'p/submit)
 

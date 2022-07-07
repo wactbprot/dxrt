@@ -15,7 +15,7 @@
   TODO: tasks replace structs have to be guarded: `:@waittime` --> `:%waittime`" 
   [id struct struct-name]
   (mapv (fn [{:keys [Ctrl Definition Title Description Element]} i]
-          {:title Title  :elem Element :descr Description
+          {:title Title  :elem Element :descr Description :ndx i
            :proc (agent {:all-exec-hooks []
                          :processed true ; run on start or not
                          :ctrl (or (keyword Ctrl) :ready)
