@@ -17,12 +17,13 @@
   (mapv (fn [{:keys [Ctrl Definition Title Description Element]} i]
           {:title Title  :elem Element :descr Description :ndx i
            :proc (agent {:all-exec-hooks []
-                         :processed true ; run on start or not
+                         :processed false ; run on start or not
                          :ctrl (or (keyword Ctrl) :ready)
                          :state (flattenv
                                  (mapv (fn [s j] 
                                          (mapv (fn [t k] 
-                                                 {:id id :struct struct-name
+                                                 {:id (keyword id)
+                                                  :struct struct-name
                                                   :ndx i :sdx j :pdx k
                                                   :is :ready
                                                   :task t})
