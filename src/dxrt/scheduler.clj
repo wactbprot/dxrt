@@ -1,12 +1,19 @@
 (ns dxrt.scheduler)
 
 
-(defn proc-state [{:keys [processed state] :as a}]
+(defn proc-state [{:keys [processed state] :as a} model]
   (if-not processed
     (-> a
+        (prn (keys model))
         (assoc :processed true))
     a))
-    
+
+(defn proc-agent [model {:keys [id group ndx] :as loc}]
+  (-> model
+      id
+      group
+      (get ndx)
+      :proc))
 
 ;; ________________________________________________________________________
 ;; start
@@ -14,27 +21,31 @@
 (defn start-loop-future
   "Starts a loop in a future and stores the reference under the key
   `:loop-future`."
-  [a proc-fn! {:keys [heartbeat]}]
+  [a f! {:keys [heartbeat]}]
   (assoc a :loop-future (future (loop []
-                                  (proc-fn!)
+                                  (f!)
                                   (Thread/sleep heartbeat)
                                   (recur)))))
 
 (defn start
-  "Every `:Container`/`:Definitions` element got his own `loop-recur`
+  "Every `:Container`/ `:Definitions` element got his own `loop-recur`
   `future` which periodically checks the state and launches new
   worker. It executes the `:all-exec-hooks` in case of `:all-exec`
   e.g. in order to realize the `ctrl_mp` and `select_definition`
   actions."
   [model {:keys [launchshift] :as opts}]
   (mapv (fn [[id {:keys [Container Definitions] :as mp}]]
-          (pmap (fn [{a :proc}]
+          
+          (mapv (fn [{a :proc}]
                   (Thread/sleep launchshift)
-                  (send a start-loop-future (fn [] (send a proc-state))  opts))
-                Container)
-          (pmap (fn [{a :proc}]
+                  (send a start-loop-future
+                        (fn [] (send a proc-state model))  opts))
+          Container)
+          
+          #_(mapv (fn [{a :proc}]
                   (Thread/sleep launchshift)
-                  (send a start-loop-future (fn [] (send a proc-state))  opts))
+                  (send a start-loop-future
+                        (fn [] (send a proc-state model))  opts))
                 Definitions))
         model)
   model)
@@ -46,14 +57,17 @@
   "Stops the loop under the key `:loop-future`."
   [a]
   (assoc a :loop-future (future-cancel (-> a :loop-future))))
-  
+
 (defn stop [model]
   (mapv (fn [[id {:keys [Container Definitions] :as mp}]]
+          
           (mapv (fn [{a :proc}]
                   (send a stop-loop-future))
                 Container)
-          (mapv (fn [{a :proc}]
+
+          #_(mapv (fn [{a :proc}]
                   (send a stop-loop-future))
                 Definitions))
+        
         model))
-      
+

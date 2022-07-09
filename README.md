@@ -42,10 +42,8 @@ nice option to understand the system during runtime.
 * `loc` is a map describing the location of a mutable piece of information in the system
 * keys of this map are at least:
   * `id`
-  * `struct`
+  * `group`
   *  `ndx` `sdx` `pdx` 
-
-## ----||
 
 ## task ns
 

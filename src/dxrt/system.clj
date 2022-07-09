@@ -18,8 +18,7 @@
    :mpd/model {:docs (ig/ref :doc/mpds)}
    :model/scheduler {:launchshift 200 ; ms
                      :heartbeat 1000 ; ms
-                     :model (ig/ref :mpd/model)}
-   :image {:model (ig/ref :model/scheduler)}})
+                     :model (ig/ref :mpd/model)}})
 
 
 ;; ________________________________________________________________________
@@ -34,19 +33,15 @@
 (defmethod ig/init-key :mpd/model [_ {:keys [docs] :as opts}]
   (model/build docs))
 
-(defmethod ig/init-key :model/scheduler [_ {:keys [id model] :as opts}]
+(defmethod ig/init-key :model/scheduler [_ {:keys [model] :as opts}]
   (scd/start model opts))
-
-(defmethod ig/init-key :image [_ {:keys [model]}]
-  model)
 
 
 ;; ________________________________________________________________________
 ;; halt key
 ;; ________________________________________________________________________
-(defmethod ig/halt-key! :model/scheduler [_ model] (scd/stop model))
-
-(defmethod ig/halt-key! :image [_ model] model)
+(defmethod ig/halt-key! :model/scheduler [_ model]
+  (scd/stop model))
 
 ;; ________________________________________________________________________
 ;; start/stop image
@@ -57,8 +52,10 @@
   (keys (reset! system (ig/init (config ids)))))
 
 (defn stop []
+  
+  (prn (map? @system))
   (ig/halt! @system)
-  (swap! system {}))
+  (reset! system {}))
 
 ;; ________________________________________________________________________
 ;; playground
