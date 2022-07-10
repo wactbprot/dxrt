@@ -31,7 +31,7 @@
                                        Definition (range)))})})
         cont (range)))
 
-(defn image
+(defn model
   "Note: The takedown fn is **not** `(shutdown-agents)`:
     `(shutdown-agents)` closes ''two global
   executors and CIDER uses those global threadpools''"
@@ -43,6 +43,6 @@
                     (assoc :Exchange (agent Exchange))
                     (dissoc :Task))})
 
-(defn merge-image [res doc] (merge res (image doc)))
+(defn merge-model [res doc] (merge res (model doc)))
 
-(defn build [docs] (reduce merge-image {} docs))
+(defn build [docs] (reduce merge-model {} docs))

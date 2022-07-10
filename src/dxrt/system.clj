@@ -3,7 +3,7 @@
     :doc "The dxrt cli."}
   (:require [dxrt.db :as db]
             [dxrt.model :as model]
-            [dxrt.scheduler :as scd]
+            [dxrt.core :as dx]
             [integrant.core :as ig]))
 
 (defn config [ids]
@@ -16,9 +16,13 @@
    :doc/mpds {:ids ids
               :db (ig/ref :db/couch)}
    :mpd/model {:docs (ig/ref :doc/mpds)}
-   :model/scheduler {:launchshift 200 ; ms
-                     :heartbeat 1000 ; ms
-                     :model (ig/ref :mpd/model)}})
+   :model/core {:db (ig/ref :db/couch)
+                :task-view "tasks"
+                :task-design "dbmp"
+                
+                :launchshift 200 ; ms
+                :heartbeat 1000 ; ms
+                :model (ig/ref :mpd/model)}})
 
 
 ;; ________________________________________________________________________
@@ -33,15 +37,15 @@
 (defmethod ig/init-key :mpd/model [_ {:keys [docs] :as opts}]
   (model/build docs))
 
-(defmethod ig/init-key :model/scheduler [_ {:keys [model] :as opts}]
-  (scd/start model opts))
+(defmethod ig/init-key :model/core [_ {:keys [model] :as opts}]
+  (dx/start model opts))
 
 
 ;; ________________________________________________________________________
 ;; halt key
 ;; ________________________________________________________________________
-(defmethod ig/halt-key! :model/scheduler [_ model]
-  (scd/stop model))
+(defmethod ig/halt-key! :model/core [_ model]
+  (dx/stop model))
 
 ;; ________________________________________________________________________
 ;; start/stop image
@@ -52,8 +56,6 @@
   (keys (reset! system (ig/init (config ids)))))
 
 (defn stop []
-  
-  (prn (map? @system))
   (ig/halt! @system)
   (reset! system {}))
 

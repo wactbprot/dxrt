@@ -1,10 +1,11 @@
-(ns dxrt.scheduler)
+(ns dxrt.core
+  (:require [dxrt.db :as db]))
 
 
-(defn proc-state [{:keys [processed state] :as a} model]
+(defn proc-state [{:keys [processed state] :as a} model opts]
   (if-not processed
     (-> a
-        (prn (keys model))
+        (prn (db/get-task "Common-wait" opts))
         (assoc :processed true))
     a))
 
@@ -34,20 +35,20 @@
   e.g. in order to realize the `ctrl_mp` and `select_definition`
   actions."
   [model {:keys [launchshift] :as opts}]
-  (mapv (fn [[id {:keys [Container Definitions] :as mp}]]
-          
-          (mapv (fn [{a :proc}]
-                  (Thread/sleep launchshift)
-                  (send a start-loop-future
-                        (fn [] (send a proc-state model))  opts))
-          Container)
-          
-          #_(mapv (fn [{a :proc}]
-                  (Thread/sleep launchshift)
-                  (send a start-loop-future
-                        (fn [] (send a proc-state model))  opts))
-                Definitions))
-        model)
+    (mapv (fn [[id {:keys [Container Definitions] :as mp}]]
+            
+            (mapv (fn [{a :proc}]
+                    (Thread/sleep launchshift)
+                    (send a start-loop-future
+                          (fn [] (send a proc-state model opts)) opts))
+                  Container)
+            
+            #_(mapv (fn [{a :proc}]
+                      (Thread/sleep launchshift)
+                      (send a start-loop-future
+                            (fn [] (send a proc-state model))  opts))
+                    Definitions))
+          model)
   model)
 
 ;; ________________________________________________________________________

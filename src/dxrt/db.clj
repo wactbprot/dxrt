@@ -11,3 +11,6 @@
 
 (defn get-mpds [{:keys [ids] :as opts}]
   (mapv #(get-mpd (assoc opts :id %)) ids))
+
+(defn get-task [taskname {:keys [task-view task-design db] :as opts}]
+      (db/get-view  (assoc db :key taskname :view task-view :design task-design)))
