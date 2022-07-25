@@ -1,12 +1,37 @@
 (ns dxrt.cli
   ^{:author "Thomas Bock <thomas.bock@ptb.de>"
     :doc "The dxrt cli."}
+<<<<<<< HEAD
   (:require [libcdb.core :as db]
             [integrant.core :as ig]))
+=======
+  (:require [dxrt.core :as dx]
+            [dxrt.system :as sys]
+            [portal.api :as p]))
+
+(comment
+  (sys/start ["mpd-ppc-gas_dosing" "mpd-se3-calib"])
+  (sys/stop))
+
+(defn model-> [] (-> @sys/system :model/core))
+
+(defstruct a-loc :id :group :ndx)
+
+(defstruct s-loc :id :group :ndx :sdx :pdx :is)
+
+(defn proc [loc]
+  (let [a (dx/proc-agent (model->)  loc)
+        f (fn [a] (assoc a :processed false))]
+    (await a)
+    (send a f))) 
+>>>>>>> b979dc3962a8ca91bcd090b51c4e28feafea3e34
 
 
-(def system (atom {}))
+(defn state [loc]
+  (let [a (dx/proc-agent (model->) loc)]
+    (send a dx/state loc)))
 
+<<<<<<< HEAD
 (defn  config [id image]
 
   {:db/conn {:prot "http"
@@ -26,50 +51,14 @@
    :image/definition {:doc (ig/ref :mpd/doc) :image image}
    :image/state {:doc (ig/ref :mpd/doc) :image image}
    :image/sheduler {:image (ig/ref :image/state)}})
+=======
+(comment
+  (proc (struct a-loc :mpd-ppc-gas_dosing :Container 0))
+  (state (struct s-loc :mpd-ppc-gas_dosing :Container 0 0 0 :error)))
+>>>>>>> b979dc3962a8ca91bcd090b51c4e28feafea3e34
 
-;; ________________________________________________________________________
-;; init key
-;; ________________________________________________________________________
-(defmethod ig/init-key :mpd/doc [_ {:keys [id db] :as opts}]
-  {:mpd id :db db})
-
-(defmethod ig/init-key :image/definition [_ {:keys [doc image] :as opts}]
-  {:mpd id :db db})
-
-(defmethod ig/init-key :image/container [_ {:keys [doc image] :as opts}]
-  {:mpd id :db db})
-
-(defmethod ig/init-key :image/state [_ {:keys [doc image] :as opts}]
-  {:mpd id :db db})
-
-(defmethod ig/init-key :image/sheduler [_ {:keys [doc image] :as opts}]
-  {:mpd id :db db})
-
-
-;; ________________________________________________________________________
-;; halt key
-;; ________________________________________________________________________
-(defmethod ig/halt-key! :mpd/doc [_ image]
-  ;; stop agents
-  (prn image))
-
-(defmethod ig/halt-key! :image/definition [_ {:keys [doc image] :as opts}]
-  (prn image))
-
-(defmethod ig/halt-key! :image/container [_ {:keys [doc image] :as opts}]
-  (prn image))
-
-(defmethod ig/halt-key! :image/state [_ {:keys [doc image] :as opts}]
-  (prn image))
-
-(defmethod ig/halt-key! :image/sheduler [_ {:keys [doc image] :as opts}]
-  (prn image))
-
-
-;; ________________________________________________________________________
-;; id up/down
-;; ________________________________________________________________________
-(defn up [id]
-  (swap! system assoc id (ig/init (config id) [:mpd/doc])))
-
-(defn down [id] (ig/halt! (-> @system id)))
+(comment
+  (def p (p/open))
+  (add-tap #'p/submit)
+  
+  (tap> @sys/system))

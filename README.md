@@ -1,8 +1,18 @@
-dxrt
-----
+```
+______/\\\_________/\\\_____________________________________________/\\\_____
+ ____/\\\/_________\/\\\____________________________________________\///\\\___
+  ___/\\\___________\/\\\__________________________________/\\\________\//\\\__
+   __/\\\____________\/\\\___/\\\____/\\\__/\\/\\\\\\\___/\\\\\\\\\\\____\//\\\_
+    _\/\\\_______/\\\\\\\\\__\///\\\/\\\/__\/\\\/////\\\_\////\\\////______\/\\\_
+     _\//\\\_____/\\\////\\\____\///\\\/____\/\\\___\///_____\/\\\__________/\\\__
+      __\//\\\___\/\\\__\/\\\_____/\\\/\\\___\/\\\____________\/\\\_/\\_____/\\\___
+       ___\///\\\_\//\\\\\\\/\\__/\\\/\///\\\_\/\\\____________\//\\\\\____/\\\/____
+        _____\///___\///////\//__\///____\///__\///______________\/////____\///______
+```
 
 # design ideas
 
+## metis lessons learnd
 [metis](https://gitlab1.ptb.de/vaclab/metis) uses redis as the state
 image. An unpleasant side effect is the need of a constant `loc` (map)- `key`
 transformation (`map->key`, `key->map`).
@@ -12,25 +22,28 @@ as a platform for docking further programs (GUI, Metic, evaluation,
 data mining, alarm system, bots, ki) is wishful thinking. so why all
 the `map->key`, `key->map` time loss.
 
-* state, exchange, model ... can be pulled into an inmutable (clock ordered) database
-* a loop recur makes the progress
+Part of metis debuging was related to a redis gui with all it pros and
+cons. The _dxrt_ system should be inspectable in total with the clojure REPL.
 
-## image
+Furthermore, [portal](https://github.com/djblue/portal) is a realy
+nice option to understand the system during runtime.
 
-* The image is a collection of `mpd`s running at `localhost`
-* image is a atom
-* `(build image)` 
-* `(up image)` starts a loop recur over the state agents in a future, returns the future -> integrant
+* no use of an (in-mem)-database at the first place
+* state, exchange, model **can be pulled into an inmutable (clock ordered) database system snapshots
+* a loop recur makes the progress (turn based) which simplifies a lot
+
+## system
+
+* the system is a collection of `mpd`s modeled as an image in a certain way
+* the system maintained  by [integrant](https://github.com/weavejester/integrant)
 
 ## loc param (location map)
 
-* `loc` is a map of the location (or position) of a piece of informaion in the image
-* keys as in previous systems:
-  * `mp-id`
-  * `struct`
-  * `no-idx` here (cooler) `ndx`
-  * `seq-idx`, ...  here  `idx` `jdx` 
-
+* `loc` is a map describing the location of a mutable piece of information in the system
+* keys of this map are at least:
+  * `id`
+  * `group`
+  *  `ndx` `sdx` `pdx` 
 
 ## task ns
 
@@ -54,7 +67,9 @@ the `map->key`, `key->map` time loss.
 ## document ns
 
 * for every document an agent `(assoc-in @image [:mpd-ref :ids :cal-foo] (agent {rev-1-bar})`
-* worker got data to write to document: `(document/to data loc config)` which schould be `(send (image/document loc) data)` location contains `:id :cal-foo`
+* https://www.thattommyhall.com/2014/02/24/concurrency-and-parallelism-in-clojure/
+* https://stackoverflow.com/questions/4768592/use-of-agents-to-complete-side-effects-in-stm-transactions
+* worker got data to write to document: `(document/to data loc)` which schould be `(send (image/document loc) data)` location contains `:id :cal-foo`
 
 
 ## worker ns
