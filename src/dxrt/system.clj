@@ -12,14 +12,14 @@
               :port 5984,
               :usr (System/getenv "CAL_USR")
               :pwd (System/getenv "CAL_PWD")
-              :name "vl_db_work"}
+              :name "vl_db_work"
+              :view "tasks"
+              :design "dbmp"
+}
    :doc/mpds {:ids ids
               :db (ig/ref :db/couch)}
    :mpd/model {:docs (ig/ref :doc/mpds)}
-   :model/core {:db (ig/ref :db/couch)
-                :task-view "tasks"
-                :task-design "dbmp"
-                
+   :model/core {:db  (ig/ref :db/couch)
                 :launchshift 200 ; ms
                 :heartbeat 1000 ; ms
                 :model (ig/ref :mpd/model)}})
@@ -37,9 +37,8 @@
 (defmethod ig/init-key :mpd/model [_ {:keys [docs] :as opts}]
   (model/build docs))
 
-(defmethod ig/init-key :model/core [_ {:keys [model] :as opts}]
-  (dx/start model opts))
-
+(defmethod ig/init-key :model/core [_  sys]
+  (dx/start sys))
 
 ;; ________________________________________________________________________
 ;; halt key
